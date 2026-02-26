@@ -1,8 +1,10 @@
 # Ignore the Composer dependencies folder
 /vendor/
 
-# Ignore the folder where generated customer resumes will go
+# Ignore the generated customer resumes
 /outputs/
 
-# Ignore Mac system files just in case
+# Ignore the customer profile pictures
+/uploads/
+
 .DS_Store
