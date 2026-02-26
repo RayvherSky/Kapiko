@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KAPIKO Resume Builder</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light pb-5">
+    <div class="container mt-5" style="max-width: 800px">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4">Resume Intake Form</h2>
+
+          <form action="generate.php" method="POST">
+            <h4 class="text-primary mt-4 border-bottom pb-2">Contact Info</h4>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label>First Name</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="FirstName"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Last Name</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="LastName"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Mobile Number</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="Mobile"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Email Address</label
+                ><input
+                  type="email"
+                  class="form-control"
+                  name="Email"
+                  required
+                />
+              </div>
+              <div class="col-md-12 mb-3">
+                <label>Address</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="Address"
+                  required
+                />
+              </div>
+            </div>
+
+            <h4 class="text-primary mt-4 border-bottom pb-2">
+              Career Objective
+            </h4>
+            <div class="mb-3">
+              <select class="form-select" name="Objective" required>
+                <option value="">Select an objective...</option>
+                <option
+                  value="Seeking a challenging position in a reputed organization where I can learn new skills, expand my knowledge, and leverage my learnings."
+                >
+                  Seeking a challenging position in a reputed organization...
+                </option>
+                <option
+                  value="To secure a challenging position that utilizes my years of experience, while allowing me the opportunity to grow professionally."
+                >
+                  To secure a challenging position that utilizes my
+                  experience...
+                </option>
+                <option
+                  value="To gain employment with a company or institution that offers me a consistently positive atmosphere to learn new technologies."
+                >
+                  To gain employment with a company that offers a positive
+                  atmosphere...
+                </option>
+                <option
+                  value="To join a company that offers me a stable and positive atmosphere and inspires me to enhance and innovate the work culture."
+                >
+                  To join a company that inspires me to innovate work culture...
+                </option>
+              </select>
+            </div>
+
+            <h4 class="text-primary mt-4 border-bottom pb-2">
+              Personal Information
+            </h4>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label>Birth Date</label
+                ><input
+                  type="date"
+                  class="form-control"
+                  name="BirthDate"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label>Birth Place</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="BirthPlace"
+                  required
+                />
+              </div>
+              <div class="col-md-2 mb-3">
+                <label>Age</label
+                ><input
+                  type="number"
+                  class="form-control"
+                  name="Age"
+                  required
+                />
+              </div>
+              <div class="col-md-2 mb-3">
+                <label>Sex</label
+                ><select class="form-select" name="Sex">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label>Civil Status</label
+                ><select class="form-select" name="CivilStatus">
+                  <option>Single</option>
+                  <option>Married</option>
+                  <option>Widowed</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label>Nationality</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="Nationality"
+                  value="Filipino"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label>Religion</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="Religion"
+                  required
+                />
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label>Height</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="Height"
+                  placeholder="e.g. 5' 7&quot;"
+                  required
+                />
+              </div>
+              <div class="col-md-3 mb-3">
+                <label>Weight</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="Weight"
+                  placeholder="e.g. 65 kgs"
+                  required
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>Language Spoken</label>
+                <div id="languageContainer">
+                  <div class="input-group mb-2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="Language[]"
+                      placeholder="e.g. English"
+                      required
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      onclick="addLanguage()"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="text-primary mt-4 border-bottom pb-2">
+              Emergency Contact
+            </h4>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label>Contact Person Name</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="EmergencyContactName"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Emergency Number</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="EmergencyContact"
+                  required
+                />
+              </div>
+            </div>
+
+            <h4 class="text-primary mt-4 border-bottom pb-2">
+              Educational Background
+            </h4>
+            <div class="row">
+              <div class="col-md-8 mb-2">
+                <label>College / Tertiary</label
+                ><input type="text" class="form-control" name="CollegeName" />
+              </div>
+              <div class="col-md-4 mb-2">
+                <label>Year Graduated</label
+                ><input type="text" class="form-control" name="CollegeYear" />
+              </div>
+              <div class="col-md-8 mb-2">
+                <label>High School</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="HighSchoolName"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-2">
+                <label>Year Graduated</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="HighSchoolYear"
+                  required
+                />
+              </div>
+              <div class="col-md-8 mb-2">
+                <label>Elementary</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="ElementaryName"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-2">
+                <label>Year Graduated</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  name="ElementaryYear"
+                  required
+                />
+              </div>
+            </div>
+
+            <h4 class="text-primary mt-4 border-bottom pb-2">
+              Experience & References
+            </h4>
+            <div class="mb-3">
+              <label>Work Experience (Company, Role, Year)</label>
+              <textarea
+                class="form-control"
+                name="WorkExperience"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="mb-4">
+              <label>Character Reference (Name, Role, Contact)</label>
+              <textarea
+                class="form-control"
+                name="CharacterReference"
+                rows="2"
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function addLanguage() {
+        const container = document.getElementById("languageContainer");
+        const div = document.createElement("div");
+        div.className = "input-group mb-2";
+        div.innerHTML = `
+                <input type="text" class="form-control" name="Language[]" placeholder="e.g. Tagalog" required>
+                <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">-</button>
+            `;
+        container.appendChild(div);
+      }
+    </script>
+  </body>
+</html>
