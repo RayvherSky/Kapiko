@@ -161,7 +161,6 @@
                   required
                 />
               </div>
-
               <div class="col-md-3 mb-3">
                 <label>Height</label
                 ><input
@@ -233,50 +232,170 @@
             <h4 class="text-primary mt-4 border-bottom pb-2">
               Educational Background
             </h4>
-            <div class="row">
-              <div class="col-md-8 mb-2">
-                <label>College / Tertiary</label
-                ><input type="text" class="form-control" name="CollegeName" />
+
+            <div class="mb-4">
+              <button
+                type="button"
+                id="btnTertiary"
+                class="btn btn-outline-primary btn-sm me-2"
+                onclick="
+                  document.getElementById('tertiaryGroup').style.display =
+                    'block';
+                  this.style.display = 'none';
+                "
+              >
+                Add College / Tertiary
+              </button>
+              <button
+                type="button"
+                id="btnHighSchool"
+                class="btn btn-outline-primary btn-sm me-2"
+                onclick="
+                  document.getElementById('highschoolGroup').style.display =
+                    'block';
+                  this.style.display = 'none';
+                "
+              >
+                Add High School
+              </button>
+              <button
+                type="button"
+                id="btnElementary"
+                class="btn btn-outline-primary btn-sm"
+                onclick="
+                  document.getElementById('elementaryGroup').style.display =
+                    'block';
+                  this.style.display = 'none';
+                "
+              >
+                Add Elementary
+              </button>
+            </div>
+
+            <div
+              id="tertiaryGroup"
+              style="display: none"
+              class="card p-3 mb-3 border-primary"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h6 class="text-primary mb-0">College / Tertiary</h6>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  onclick="removeEducation('tertiaryGroup', 'btnTertiary')"
+                >
+                  - Remove -
+                </button>
               </div>
-              <div class="col-md-4 mb-2">
-                <label>Year Graduated</label
-                ><input type="text" class="form-control" name="CollegeYear" />
+              <div class="row">
+                <div class="col-md-6 mb-2">
+                  <label>School Name</label
+                  ><input type="text" class="form-control" name="CollegeName" />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label>Date Started</label
+                  ><input
+                    type="date"
+                    class="form-control"
+                    name="CollegeStart"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label>Date Graduated</label
+                  ><input type="date" class="form-control" name="CollegeEnd" />
+                </div>
               </div>
-              <div class="col-md-8 mb-2">
-                <label>High School</label
-                ><input
-                  type="text"
-                  class="form-control"
-                  name="HighSchoolName"
-                  required
-                />
+            </div>
+
+            <div
+              id="highschoolGroup"
+              style="display: none"
+              class="card p-3 mb-3 border-primary"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h6 class="text-primary mb-0">High School / Secondary</h6>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  onclick="removeEducation('highschoolGroup', 'btnHighSchool')"
+                >
+                  - Remove
+                </button>
               </div>
-              <div class="col-md-4 mb-2">
-                <label>Year Graduated</label
-                ><input
-                  type="text"
-                  class="form-control"
-                  name="HighSchoolYear"
-                  required
-                />
+              <div class="row">
+                <div class="col-md-6 mb-2">
+                  <label>School Name</label
+                  ><input
+                    type="text"
+                    class="form-control"
+                    name="HighSchoolName"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label>Date Started</label
+                  ><input
+                    type="date"
+                    class="form-control"
+                    name="HighSchoolStart"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label>Date Graduated</label
+                  ><input
+                    type="date"
+                    class="form-control"
+                    name="HighSchoolEnd"
+                  />
+                </div>
               </div>
-              <div class="col-md-8 mb-2">
-                <label>Elementary</label
-                ><input
-                  type="text"
-                  class="form-control"
-                  name="ElementaryName"
-                  required
-                />
+            </div>
+
+            <div
+              id="elementaryGroup"
+              style="display: none"
+              class="card p-3 mb-3 border-primary"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h6 class="text-primary mb-0">Elementary</h6>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  onclick="removeEducation('elementaryGroup', 'btnElementary')"
+                >
+                  - Remove
+                </button>
               </div>
-              <div class="col-md-4 mb-2">
-                <label>Year Graduated</label
-                ><input
-                  type="text"
-                  class="form-control"
-                  name="ElementaryYear"
-                  required
-                />
+              <div class="row">
+                <div class="col-md-6 mb-2">
+                  <label>School Name</label
+                  ><input
+                    type="text"
+                    class="form-control"
+                    name="ElementaryName"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label>Date Started</label
+                  ><input
+                    type="date"
+                    class="form-control"
+                    name="ElementaryStart"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label>Date Graduated</label
+                  ><input
+                    type="date"
+                    class="form-control"
+                    name="ElementaryEnd"
+                  />
+                </div>
               </div>
             </div>
 
@@ -310,6 +429,7 @@
     </div>
 
     <script>
+      // Function to handle the + button for languages
       function addLanguage() {
         const container = document.getElementById("languageContainer");
         const div = document.createElement("div");
@@ -319,6 +439,20 @@
                 <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">-</button>
             `;
         container.appendChild(div);
+      }
+
+      // Function to handle the - Remove button for Education Blocks
+      function removeEducation(groupId, btnId) {
+        // 1. Hide the entire block
+        const group = document.getElementById(groupId);
+        group.style.display = "none";
+
+        // 2. Clear out the input values so PHP knows it's empty
+        const inputs = group.querySelectorAll("input");
+        inputs.forEach((input) => (input.value = ""));
+
+        // 3. Bring the blue "Add" button back to the top
+        document.getElementById(btnId).style.display = "inline-block";
       }
     </script>
   </body>
