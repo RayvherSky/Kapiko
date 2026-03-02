@@ -36,13 +36,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $middleName = trim($_POST['MiddleName'] ?? '');
     $lastName = trim($_POST['LastName']);
     
-    // This array filter trick removes the middle name space if they left it blank
+    // FULL NAME: For the top of the resume (e.g., Rayvher Sky Aransazo Manahan)
     $nameParts = array_filter([$firstName, $middleName, $lastName]);
     $fullName = implode(' ', $nameParts);
-    
     $templateProcessor->setValue('FullName', $fullName);
 
-    // Everything else remains exactly the same!
+    // SIGNATURE NAME: Extract middle initial for the bottom (e.g., Rayvher Sky A. Manahan)
+    $middleInitial = '';
+    if (!empty($middleName)) {
+        // Grab the first letter, capitalize it, and add a period
+        $middleInitial = strtoupper(substr($middleName, 0, 1)) . '.';
+    }
+    
+    $signatureParts = array_filter([$firstName, $middleInitial, $lastName]);
+    $signatureName = implode(' ', $signatureParts);
+    $templateProcessor->setValue('SignatureName', $signatureName);
+
+    // 3. Process the rest of the form fields
     $formattedDate = date('F d, Y', strtotime($_POST['BirthDate']));
     $templateProcessor->setValue('BirthDate', $formattedDate);
 
@@ -64,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $templateProcessor->setValue('SkillsList', ' ');
     }
 
+    // Dynamic Block: College
     if (!empty($_POST['CollegeName'])) {
         $templateProcessor->cloneBlock('block_tertiary', 1, true, false);
         $templateProcessor->setValue('CollegeName', $_POST['CollegeName']);
@@ -73,6 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $templateProcessor->cloneBlock('block_tertiary', 0, true, true);
     }
 
+    // Dynamic Block: High School
     if (!empty($_POST['HighSchoolName'])) {
         $templateProcessor->cloneBlock('block_highschool', 1, true, false);
         $templateProcessor->setValue('HighSchoolName', $_POST['HighSchoolName']);
@@ -82,6 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $templateProcessor->cloneBlock('block_highschool', 0, true, true);
     }
 
+    // Dynamic Block: Elementary
     if (!empty($_POST['ElementaryName'])) {
         $templateProcessor->cloneBlock('block_elementary', 1, true, false);
         $templateProcessor->setValue('ElementaryName', $_POST['ElementaryName']);
@@ -91,6 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $templateProcessor->cloneBlock('block_elementary', 0, true, true);
     }
 
+    // Dynamic Block: Work Experience
     $jobPositions = $_POST['JobPosition'] ?? [];
     $companyNames = $_POST['CompanyName'] ?? [];
     $jobStarts = $_POST['JobStart'] ?? [];
@@ -120,6 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $templateProcessor->cloneBlock('block_work', 0, true, true);
     }
 
+    // Dynamic Block: Character Reference
     $refNames = $_POST['RefName'] ?? [];
     $refPositions = $_POST['RefPosition'] ?? [];
     $refContacts = $_POST['RefContact'] ?? [];
@@ -145,12 +160,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $templateProcessor->cloneBlock('block_reference', 0, true, true);
     }
 
+    // Standard Fields
     $fields = ['Address', 'Mobile', 'Email', 'Objective', 'Religion', 'BirthPlace', 'Age', 'Sex', 'CivilStatus', 'EmergencyContactName', 'Nationality', 'EmergencyContact'];
     foreach ($fields as $field) {
         $value = !empty($_POST[$field]) ? $_POST[$field] : ' ';
         $templateProcessor->setValue($field, $value);
     }
 
+    // Output generation
     $safeLastName = str_replace(' ', '_', $lastName);
     $safeFirstName = str_replace(' ', '_', $firstName);
     $dateCreated = date('Y-m-d'); 
