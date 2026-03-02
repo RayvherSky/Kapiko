@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KAPIKO Resume Builder</title>
+
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -25,7 +33,6 @@
       #reviewStep {
         display: none;
       }
-      /* Number input arrow hiding */
       input[type="number"]::-webkit-inner-spin-button,
       input[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -35,7 +42,6 @@
         -moz-appearance: textfield;
       }
 
-      /* Cropper Image Container */
       .img-container img {
         max-width: 100%;
       }
@@ -732,7 +738,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="cropModalLabel">Crop to 2x2 Square</h5>
+            <h5 class="modal-title" id="cropModalLabel">Frame Your Photo</h5>
             <button
               type="button"
               class="btn-close"
@@ -740,7 +746,40 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body text-center">
+            <div class="mb-3">
+              <div class="btn-group" role="group">
+                <button
+                  type="button"
+                  id="btnOriginal"
+                  class="btn btn-primary"
+                  onclick="setOriginal()"
+                >
+                  Original Background
+                </button>
+                <button
+                  type="button"
+                  id="btnWhiteBg"
+                  class="btn btn-outline-primary"
+                  onclick="setWhiteBg()"
+                >
+                  White Background (AI)
+                </button>
+              </div>
+              <div
+                id="aiLoading"
+                class="mt-2 text-primary fw-bold"
+                style="display: none"
+              >
+                <span
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Processing AI... Please wait (may take 10-15s)
+              </div>
+            </div>
+
             <div class="img-container">
               <img id="imageToCrop" src="" alt="Picture" />
             </div>
@@ -753,7 +792,7 @@
             >
               Cancel
             </button>
-            <button type="button" class="btn btn-primary" id="cropBtn">
+            <button type="button" class="btn btn-success fw-bold" id="cropBtn">
               Crop & Save
             </button>
           </div>
@@ -763,10 +802,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.3/dist/browser/imgly-background-removal.js"></script>
 
     <script>
-      // --- CROPPER LOGIC ---
+      // --- CROPPER & AI LOGIC ---
       let cropper;
+      let originalImageSrc = null;
+      let processedImageSrc = null;
+
       const imageUpload = document.getElementById("imageUpload");
       const imageToCrop = document.getElementById("imageToCrop");
       const cropModalElement = document.getElementById("cropModal");
@@ -777,7 +820,16 @@
         if (files && files.length > 0) {
           const reader = new FileReader();
           reader.onload = function (event) {
-            imageToCrop.src = event.target.result;
+            // Reset everything when a new file is chosen
+            originalImageSrc = event.target.result;
+            processedImageSrc = null;
+            imageToCrop.src = originalImageSrc;
+
+            document.getElementById("btnOriginal").className =
+              "btn btn-primary";
+            document.getElementById("btnWhiteBg").className =
+              "btn btn-outline-primary";
+
             cropModal.show();
           };
           reader.readAsDataURL(files[0]);
@@ -797,18 +849,76 @@
           cropper.destroy();
           cropper = null;
         }
-        // If they cancelled, clear the file input
         if (!document.getElementById("CroppedImage").value) {
           imageUpload.value = "";
         }
       });
+
+      // Show Original Background
+      function setOriginal() {
+        if (!cropper) return;
+        document.getElementById("btnOriginal").className = "btn btn-primary";
+        document.getElementById("btnWhiteBg").className =
+          "btn btn-outline-primary";
+        cropper.replace(originalImageSrc);
+      }
+
+      // Remove Background using AI
+      async function setWhiteBg() {
+        if (!cropper) return;
+        document.getElementById("btnWhiteBg").className = "btn btn-primary";
+        document.getElementById("btnOriginal").className =
+          "btn btn-outline-primary";
+
+        // If we already processed it, just load the saved white BG image
+        if (processedImageSrc) {
+          cropper.replace(processedImageSrc);
+          return;
+        }
+
+        document.getElementById("aiLoading").style.display = "block";
+
+        try {
+          // 1. Ask the AI to strip the background
+          const imageBlob = await imglyRemoveBackground(originalImageSrc);
+
+          // 2. Put the transparent AI image onto a white canvas
+          const url = URL.createObjectURL(imageBlob);
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+
+            // Fill the background with solid white
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the subject over the white background
+            ctx.drawImage(img, 0, 0);
+
+            // Save it and show it in the cropper
+            processedImageSrc = canvas.toDataURL("image/png");
+            cropper.replace(processedImageSrc);
+            document.getElementById("aiLoading").style.display = "none";
+          };
+          img.src = url;
+        } catch (error) {
+          console.error("AI Error:", error);
+          alert(
+            "AI Background removal took too long or isn't supported on this specific phone.",
+          );
+          document.getElementById("aiLoading").style.display = "none";
+          setOriginal(); // Fallback to original
+        }
+      }
 
       document.getElementById("cropBtn").addEventListener("click", function () {
         if (cropper) {
           const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
           const base64Image = canvas.toDataURL("image/png");
 
-          // Save data to hidden input and show preview
           document.getElementById("CroppedImage").value = base64Image;
           const preview = document.getElementById("croppedPreview");
           preview.src = base64Image;
@@ -877,20 +987,16 @@
         let reviewHTML = "";
         for (let [key, value] of formData.entries()) {
           if (!value || value === "" || value.size === 0) continue;
-
-          // Custom check for our hidden Base64 image field
           if (key === "CroppedImage") {
             reviewHTML += `<div class="col-md-6 border-bottom pb-2 mb-2"><strong class="text-dark d-block">Photo Uploaded</strong><span class="text-success">Cropped successfully!</span></div>`;
             continue;
           }
-
           let friendlyName = key
             .replace(/([A-Z])/g, " $1")
             .replace("[]", "")
             .trim();
-
           if (value instanceof File) {
-            continue; /* We handle the image via CroppedImage now */
+            continue;
           } else {
             reviewHTML += `<div class="col-md-6 border-bottom pb-2 mb-2"><strong class="text-dark d-block">${friendlyName}</strong><span class="text-secondary">${value}</span></div>`;
           }
