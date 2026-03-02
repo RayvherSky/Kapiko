@@ -8,6 +8,11 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+      rel="stylesheet"
+    />
+
     <style>
       .skill-badge {
         cursor: pointer;
@@ -20,8 +25,7 @@
       #reviewStep {
         display: none;
       }
-
-      /* This hides the up/down arrows on number inputs */
+      /* Number input arrow hiding */
       input[type="number"]::-webkit-inner-spin-button,
       input[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -29,6 +33,18 @@
       }
       input[type="number"] {
         -moz-appearance: textfield;
+      }
+
+      /* Cropper Image Container */
+      .img-container img {
+        max-width: 100%;
+      }
+      #croppedPreview {
+        border-radius: 5px;
+        border: 2px solid #ddd;
+        display: none;
+        margin-top: 10px;
+        max-width: 150px;
       }
     </style>
   </head>
@@ -62,18 +78,23 @@
                 <input
                   class="form-control"
                   type="file"
-                  name="ProfilePicture"
+                  id="imageUpload"
                   accept="image/png, image/jpeg, image/jpg"
                 />
                 <small class="text-muted"
                   >Leave Empty If You Do Not Have Any Picture. Ask For
                   Assistance From The Owner.</small
                 >
+
+                <input type="hidden" name="CroppedImage" id="CroppedImage" />
+                <div>
+                  <img id="croppedPreview" src="" alt="Cropped Preview" />
+                </div>
               </div>
 
               <h4 class="text-primary mt-4 border-bottom pb-2">Contact Info</h4>
               <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                   <label>First Name</label
                   ><input
                     type="text"
@@ -82,7 +103,16 @@
                     required
                   />
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
+                  <label>Middle Name</label
+                  ><input
+                    type="text"
+                    class="form-control"
+                    name="MiddleName"
+                    placeholder="(Optional)"
+                  />
+                </div>
+                <div class="col-md-4 mb-3">
                   <label>Last Name</label
                   ><input
                     type="text"
@@ -256,8 +286,7 @@
                       placeholder="e.g. 65"
                       min="0"
                       required
-                    />
-                    <span class="input-group-text">kg</span>
+                    /><span class="input-group-text">kg</span>
                   </div>
                 </div>
 
@@ -692,7 +721,104 @@
       </div>
     </div>
 
+    <div
+      class="modal fade"
+      id="cropModal"
+      tabindex="-1"
+      aria-labelledby="cropModalLabel"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cropModalLabel">Crop to 2x2 Square</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="img-container">
+              <img id="imageToCrop" src="" alt="Picture" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-primary" id="cropBtn">
+              Crop & Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <script>
+      // --- CROPPER LOGIC ---
+      let cropper;
+      const imageUpload = document.getElementById("imageUpload");
+      const imageToCrop = document.getElementById("imageToCrop");
+      const cropModalElement = document.getElementById("cropModal");
+      const cropModal = new bootstrap.Modal(cropModalElement);
+
+      imageUpload.addEventListener("change", function (e) {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            imageToCrop.src = event.target.result;
+            cropModal.show();
+          };
+          reader.readAsDataURL(files[0]);
+        }
+      });
+
+      cropModalElement.addEventListener("shown.bs.modal", function () {
+        cropper = new Cropper(imageToCrop, {
+          aspectRatio: 1 / 1, // Forces a perfect square
+          viewMode: 1,
+          autoCropArea: 1,
+        });
+      });
+
+      cropModalElement.addEventListener("hidden.bs.modal", function () {
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        // If they cancelled, clear the file input
+        if (!document.getElementById("CroppedImage").value) {
+          imageUpload.value = "";
+        }
+      });
+
+      document.getElementById("cropBtn").addEventListener("click", function () {
+        if (cropper) {
+          const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+          const base64Image = canvas.toDataURL("image/png");
+
+          // Save data to hidden input and show preview
+          document.getElementById("CroppedImage").value = base64Image;
+          const preview = document.getElementById("croppedPreview");
+          preview.src = base64Image;
+          preview.style.display = "block";
+
+          cropModal.hide();
+        }
+      });
+      // --------------------
+
       function toggleSkill(button, skillValue) {
         button.style.display = "none";
         const container = document.getElementById("skillsContainer");
@@ -751,12 +877,20 @@
         let reviewHTML = "";
         for (let [key, value] of formData.entries()) {
           if (!value || value === "" || value.size === 0) continue;
+
+          // Custom check for our hidden Base64 image field
+          if (key === "CroppedImage") {
+            reviewHTML += `<div class="col-md-6 border-bottom pb-2 mb-2"><strong class="text-dark d-block">Photo Uploaded</strong><span class="text-success">Cropped successfully!</span></div>`;
+            continue;
+          }
+
           let friendlyName = key
             .replace(/([A-Z])/g, " $1")
             .replace("[]", "")
             .trim();
+
           if (value instanceof File) {
-            reviewHTML += `<div class="col-md-6 border-bottom pb-2 mb-2"><strong class="text-dark d-block">Photo Uploaded</strong><span class="text-success">${value.name}</span></div>`;
+            continue; /* We handle the image via CroppedImage now */
           } else {
             reviewHTML += `<div class="col-md-6 border-bottom pb-2 mb-2"><strong class="text-dark d-block">${friendlyName}</strong><span class="text-secondary">${value}</span></div>`;
           }
